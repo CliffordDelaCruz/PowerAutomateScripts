@@ -1,0 +1,7 @@
+# Open Selected CSV file and Save as Excel file. File is saved into "ProcessedExcel.XLSX"
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: SelectedEBPInvoiceResult Visible: False ReadOnly: False Instance=> ExcelInstance
+Excel.CloseExcel.CloseAndSaveAs Instance: ExcelInstance DocumentFormat: Excel.ExcelFormat.OpenXmlWorkbook DocumentPath: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\ProcessedExcel.xlsx'''
+# Run macro "MacroProcessExcel.XLSM" that will load "ProcessedExcel.XLSX" and convert the column to "Invoice_Number" to TEXT
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\MacroProcessExcel.xlsm''' Visible: True ReadOnly: False Instance=> ExcelInstance2
+Excel.RunMacro Instance: ExcelInstance2 Macro: $'''Macro1'''
+Excel.CloseExcel.Close Instance: ExcelInstance2

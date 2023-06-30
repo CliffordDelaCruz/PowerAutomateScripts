@@ -1,0 +1,15 @@
+Sub Macro1()
+'
+' Macro1 Macro
+'
+
+'
+    ChDir _
+        "C:\D Data\Issues Encountered to take Note with solution\PROJECTS\RPA - PowerAutomate\EBP_Invoice\Processed"
+    Workbooks.Open Filename:= _
+        "C:\D Data\Issues Encountered to take Note with solution\PROJECTS\RPA - PowerAutomate\EBP_Invoice\Processed\ProcessedExcel.xlsx"
+    Columns("D:D").Select
+    Selection.NumberFormat = "@"
+    ActiveWorkbook.Save
+    ActiveWindow.Close
+End Sub

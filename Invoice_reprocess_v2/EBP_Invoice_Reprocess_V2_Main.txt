@@ -1,0 +1,30 @@
+# download the email attachment
+Outlook.Launch Instance=> OutlookInstance
+ON ERROR LaunchOutlookError
+    CALL MsgOutlookLaunchFail
+    THROW ERROR
+END
+SET EmailAccount TO $'''clifford_delacruz@canon.com.sg'''
+SET EmailFolder TO $'''Inbox'''
+SET EBPEmailFolderPath TO $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\December 2022'''
+Outlook.RetrieveEmailMessages.RetrieveEmailsAndSaveAttachments Instance: OutlookInstance Account: EmailAccount MailFolder: EmailFolder EmailsToRetrieve: Outlook.RetrieveMessagesMode.Unread MarkAsRead: True SubjectContains: $'''EBP Invoice Extract Result''' SaveAttachmentsInto: EBPEmailFolderPath Messages=> RetrievedEmails
+# Select the CSV file for processing
+Display.SelectFileDialog.SelectFile Title: $'''Select CSV file...''' InitialDirectory: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice''' FileFilter: $'''*.CSV''' IsTopMost: False CheckIfFileExists: True SelectedFile=> SelectedEBPInvoiceResult ButtonPressed=> ButtonPressed3
+CALL Subflow_CSVToExcel_Convert
+SET Excel_File_Path TO $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\ProcessedExcel.xlsx'''
+# Run SQL script to get the list of invoice that were not copied successfully because of PDF missing.
+Database.Connect ConnectionString: $'''Provider=Microsoft.ACE.OLEDB.12.0;Data Source=%Excel_File_Path%;Extended Properties=\"Excel 12.0 Xml;HDR=YES\";''' Connection=> SQLConnection
+/# // fetch all the rows
+SELECT * FROM [EBP Invoice Extract Result (PRO$]#/
+Database.ExecuteSqlStatement.Execute Connection: SQLConnection Statement: $'''Select [Site_Code] as Site__Code, [Is_Void] as [Is__Void], [Customer_Code] as [Customer__Code], [Invoice_Number] as [Invoice__Number], [Invoice_Date] as [Invoice__Date], [Due_Date] as [Due__Date], [Total_Amount] as [Total__Amount], [Currency] as [Currency], [Model] as [Model], [Serial_No] as [Serial__No], [PRINTOUT_DESTINATION_PATH] as [PRINTOUT__DESTINATION__PATH] from [EBP Invoice Extract Result (PRO$]
+where PRINTOUT_DESTINATION_PATH = \'File Not found\'''' Timeout: 30 Result=> QueryResult
+Database.Close Connection: SQLConnection
+# Read through the "QueryResult" data table
+CALL Subflow_Read_QueryData
+# If no data on query, don't do any data sending and end the program
+IF $'''%CurrentItem%%QueryResult%''' > 0 THEN
+    # Execute the copying of PDF files using ROBOCOPY windows batch file
+    CALL Subflow_ROBOCOPY
+ELSE
+    Display.ShowMessageDialog.ShowMessage Title: $'''No Data to Reprocess''' Message: $'''There is no data to reprocess... ending the program''' Icon: Display.Icon.Information Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed
+END

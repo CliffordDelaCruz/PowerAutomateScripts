@@ -1,0 +1,1 @@
+System.RunApplication.RunApplicationAndWaitToComplete ApplicationPath: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\robocopyEBPInvoice.BAT''' WindowStyle: System.ProcessWindowStyle.Normal Timeout: 1000 ProcessId=> AppProcessId ExitCode=> AppExitCode

@@ -1,0 +1,25 @@
+DateTime.GetCurrentDateTime.Local DateTimeFormat: DateTime.DateTimeFormat.DateOnly CurrentDateTime=> CurrentDateTime
+Text.ConvertDateTimeToText.FromCustomDateTime DateTime: CurrentDateTime CustomFormat: $'''yyyyMM''' Result=> VarFiscalMonth
+File.WriteText File: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\robocopyEBPInvoice.BAT''' AppendNewLine: False IfFileExists: File.IfFileExists.Overwrite Encoding: File.FileEncoding.ANSI
+File.WriteText File: $'''\\\\DC-PAXFS01\\EBPdocument$\\PRODUCTION\\CSPL\\Einvoice\\E_Invoice_V2.CSV''' TextToWrite: $'''Site_Code,Is_Void,Customer_Code,Invoice_Number,Invoice_Date,Due_Date,Total_Amount,Currency,Model,Serial_No,PRINTOUT_DESTINATION_PATH''' AppendNewLine: True IfFileExists: File.IfFileExists.Overwrite Encoding: File.FileEncoding.ANSI
+LOOP FOREACH CurrentItem IN QueryResult
+    SET VarSiteCode TO CurrentItem['Site__Code']
+    SET VarIsVoid TO CurrentItem['Is__Void']
+    SET VarCustomerCode TO CurrentItem['Customer__Code']
+    SET VarInvoiceNumber TO CurrentItem['Invoice__Number']
+    SET VarInvoiceDate TO CurrentItem['Invoice__Date']
+    SET VarDueDate TO CurrentItem['Due__Date']
+    SET VarTotalAmount TO CurrentItem['Total__Amount']
+    SET VarCurrency TO CurrentItem['Currency']
+    SET VarModel TO CurrentItem['Model']
+    SET VarSerialNo TO CurrentItem['Serial__No']
+    SET VarPRINTOUTDESTINATIONPATH TO CurrentItem['PRINTOUT__DESTINATION__PATH']
+    Text.GetSubtext.GetSubtextFromStartTo Text: VarInvoiceNumber NumberOfChars: 1 Subtext=> VarInvSubtext
+    IF VarInvSubtext = $'''R''' THEN
+        SET VarCMDRoboCopy TO $'''ROBOCOPY \\\\DC-PAXFS01\\cspl_afusion_archive$\\AX\\FAD\\Imported\\Dom\\Invoice\\%VarFiscalMonth%\\ \\\\DC-PAXFS01\\EBPdocument$\\PRODUCTION\\CSPL\\Einvoice\\PDF\\ *%VarInvoiceNumber%* /r:0 /S'''
+    ELSE
+        SET VarCMDRoboCopy TO $'''ROBOCOPY \\\\DC-PAXFS01\\cspl_afusion_archive$\\AX\\FAD\\Imported\\CDS\\%VarFiscalMonth%\\ \\\\DC-PAXFS01\\EBPdocument$\\PRODUCTION\\CSPL\\Einvoice\\PDF\\ *%VarInvoiceNumber%* /r:0 /S'''
+    END
+    File.WriteText File: $'''C:\\D Data\\Issues Encountered to take Note with solution\\PROJECTS\\RPA - PowerAutomate\\EBP_Invoice\\Processed\\robocopyEBPInvoice.BAT''' TextToWrite: VarCMDRoboCopy AppendNewLine: True IfFileExists: File.IfFileExists.Append Encoding: File.FileEncoding.ANSI
+    File.WriteText File: $'''\\\\DC-PAXFS01\\EBPdocument$\\PRODUCTION\\CSPL\\Einvoice\\E_Invoice_V2.CSV''' TextToWrite: $'''%VarSiteCode%,%VarIsVoid%,%VarCustomerCode%,%VarInvoiceNumber%,%VarInvoiceDate%,%VarDueDate%,%VarTotalAmount%,%VarCurrency%,%VarModel%,%VarSerialNo%,NULL''' AppendNewLine: True IfFileExists: File.IfFileExists.Append Encoding: File.FileEncoding.ANSI
+END

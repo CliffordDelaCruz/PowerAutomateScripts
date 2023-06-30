@@ -1,0 +1,1 @@
+ROBOCOPY \\SERVER\data_archive$\Invoice\202301\ \\SERVER\EBPdocument$\PRODUCTION\COMPANY\Einvoice\PDF\ *R1ABC001* /r:0 /S
